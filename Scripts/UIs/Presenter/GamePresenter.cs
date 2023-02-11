@@ -56,7 +56,8 @@ namespace Chocolate.UIs.Presenter
                     switch (state)
                     {
                         case GameState.Ready:
-                            _audioService.PlayBGM(GameAudioType.BgmGamePlay);
+                            var bgmPitch = _gameSettings.IsExpBoostOption ? 1.2f : 1.0f;
+                            _audioService.PlayBGM(GameAudioType.BgmGamePlay, bgmPitch);
                             // 初期表示
                             gameInfoView.SetTextStartMessage("");
                             gameInfoView.SetActiveChocoScoreArea(false);

@@ -67,6 +67,27 @@ namespace Chocolate.UIs.View
             effectOptionToggle.onValueChanged.AddListener(action);
         }
 
+        // EXPブーストオプション
+        [SerializeField] private GameObject boostOptionArea;
+        [SerializeField] private Toggle boostOptionToggle;
+        public void SetActiveBoostOptionArea(bool isActive)
+        {
+            boostOptionArea.SetActive(isActive);
+        }
+        public void SetIsOnBoostOptionToggle(bool isOn)
+        {
+            boostOptionToggle.isOn = isOn;
+        }
+        public void SetIsDisabledBoostOptionToggle(bool isDisabled)
+        {
+            boostOptionToggle.interactable = !isDisabled;
+        }
+        public void SetListenerBoostOptionToggle(UnityAction<bool> action)
+        {
+            boostOptionToggle.onValueChanged.RemoveAllListeners();
+            boostOptionToggle.onValueChanged.AddListener(action);
+        }
+
         // プレイヤーステータス
         // EXP
         [SerializeField] private TextMeshProUGUI playerStatusExpText;
@@ -162,10 +183,10 @@ namespace Chocolate.UIs.View
         {
             if (isMax)
             {
-                playerSpeedText.text = "<color=\"blue\">" + value + "</color>";
+                playerSpeedText.text = "<color=\"blue\">" + value.ToString("f1") + "</color>";
                 return;
             }
-            playerSpeedText.text = Mathf.FloorToInt(value).ToString();
+            playerSpeedText.text = value.ToString("f1");
         }
     }
 }

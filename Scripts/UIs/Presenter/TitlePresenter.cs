@@ -20,6 +20,7 @@ namespace Chocolate.UIs.Presenter
         [SerializeField] private TitleTuneUpView titleTuneUpView;
         [SerializeField] private TitleTimelineView titleTimelineView;
         [SerializeField] private TitleHelpView titleHelpView;
+        [SerializeField] private TitleBoostView titleBoostView;
 
         private TitleManager _titleManager;
         private IAudioService _audioService;
@@ -78,12 +79,16 @@ namespace Chocolate.UIs.Presenter
 
         private void Awake()
         {
-            // TuneUp画面に直接遷移する場合s
+            // EXPブーストオプションは初めにリセットしておく
+            _gameSettings.IsExpBoostOption = false;
+
+            // TuneUp画面に直接遷移する場合
             if (_gameSettings.IsTransitionTuneUp)
             {
                 _audioService.PlayBGM(GameAudioType.BgmTitleTop);
                 titleTopView.gameObject.SetActive(false);
                 titleHelpView.gameObject.SetActive(false);
+                titleBoostView.gameObject.SetActive(false);
                 titleTuneUpView.gameObject.SetActive(true);
                 titleTopView.SetActiveSpecialThanksText(true);
                 OnInitializeUIs();
@@ -94,6 +99,7 @@ namespace Chocolate.UIs.Presenter
             PlayTitleBGMAsync();
             titleTopView.gameObject.SetActive(true);
             titleHelpView.gameObject.SetActive(false);
+            titleBoostView.gameObject.SetActive(false);
             titleTuneUpView.gameObject.SetActive(false);
             // タイトルアニメーション再生
             titleTopView.SetActiveTitleAnimationObjects(true);
@@ -217,11 +223,51 @@ namespace Chocolate.UIs.Presenter
             titleTuneUpView.SetActiveGoButton(true);
             titleTuneUpView.SetListenerGoButton(() =>
             {
-                _audioService.PlayOneShot(GameAudioType.SeDecide);
-
+                if (_gameSettings.IsExpBoostOption)
+                {
+                    _audioService.PlayOneShot(GameAudioType.SeClick);
+                    titleBoostView.ShowBoostWindow();
+                    return;
+                }
+                // ステータスMAXかつ未クリアの場合、ブーストする
+                if (_playerStatusModel.IsAllMaxParameter() && !_playerPrefsRepository.GetIsClearStatusMax())
+                {
+                    _audioService.PlayOneShot(GameAudioType.SeOkBonus);
+                    _gameSettings.IsExpBoostOption = true;
+                }
                 // 確率を計算して遷移
+                _audioService.PlayOneShot(GameAudioType.SeDecide);
                 SetSettingsCalculateSuccessPercent();
                 _transitionService.LoadScene(GameConst.SceneNameGame);
+            });
+
+            // EXPブーストウィンドウ
+            titleBoostView.SetListenerOkButton(() =>
+            {
+                // 必要EXPを引く
+                var remainExp = _gameSettings.PlayerExp - NeedExpBoostValue;
+                _gameSettings.PlayerExp = remainExp;
+                _playerPrefsRepository.SavePlayerExp(remainExp);
+                // 確率を計算して遷移
+                _audioService.PlayOneShot(GameAudioType.SeDecide);
+                _audioService.PlayOneShot(GameAudioType.SeOkBonus);
+                SetSettingsCalculateSuccessPercent();
+                _transitionService.LoadScene(GameConst.SceneNameGame);
+            });
+            titleBoostView.SetListenerCancelButton(() =>
+            {
+                _audioService.PlayOneShot(GameAudioType.SeClick);
+                titleBoostView.gameObject.SetActive(false);
+            });
+            // EXPブーストオプション
+            var isClear = _playerPrefsRepository.GetIsClearStatusMax();
+            titleTuneUpView.SetActiveBoostOptionArea(isClear); // クリアしていたら表示する
+            titleTuneUpView.SetIsDisabledBoostOptionToggle(IsDisabledBoostOptionToggle());
+            titleTuneUpView.SetIsOnBoostOptionToggle(false);
+            titleTuneUpView.SetListenerBoostOptionToggle((isOn) =>
+            {
+                _audioService.PlayOneShot(GameAudioType.SeClick);
+                _gameSettings.IsExpBoostOption = isOn;
             });
 
             // 強化ボタン
@@ -308,6 +354,9 @@ namespace Chocolate.UIs.Presenter
                 // 強化ボタンを表示
                 titleTuneUpView.SetActiveGoButton(false);
                 titleTuneUpView.SetActiveTuneButton(true);
+                // EXPブーストトグルはリセットする
+                titleTuneUpView.SetIsOnBoostOptionToggle(false);
+                titleTuneUpView.SetIsDisabledBoostOptionToggle(true);
                 // 値を更新
                 UpdatePlayerStatusValue();
             }
@@ -320,6 +369,8 @@ namespace Chocolate.UIs.Presenter
             // GOボタン表示
             titleTuneUpView.SetActiveGoButton(true);
             titleTuneUpView.SetActiveTuneButton(false);
+            // EXPブーストトグルを再設定
+            titleTuneUpView.SetIsDisabledBoostOptionToggle(IsDisabledBoostOptionToggle());
         }
 
         private void UpdatePlayerStatusValue()
@@ -349,6 +400,13 @@ namespace Chocolate.UIs.Presenter
             var speedValue =
                 _playerStatusModel.CalculatePlayerSpeed(_gameSettings.MinPlayerSpeed, _gameSettings.MaxPlayerSpeed);
             titleTuneUpView.SetTextPlayerSpeed(speedValue, Mathf.FloorToInt(speedValue) == Mathf.FloorToInt(_gameSettings.MaxPlayerSpeed));
+        }
+
+        private readonly int NeedExpBoostValue = 500;
+        private bool IsDisabledBoostOptionToggle()
+        {
+            // 500EXP以下の場合
+            return _gameSettings.PlayerExp < NeedExpBoostValue;
         }
     }
 }

@@ -60,6 +60,9 @@ namespace Chocolate.Players
         public void OnUpdate()
         {
             _stateMachine.OnUpdate();
+
+            // 無理やり位置を調整
+            _playerBehaviour.ForceAdjustPlayerPosition();
         }
 
         private bool _isDead = false;

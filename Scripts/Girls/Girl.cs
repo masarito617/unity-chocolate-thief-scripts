@@ -4,6 +4,7 @@ using Chocolate.Common;
 using Chocolate.Const;
 using Chocolate.Roads;
 using Chocolate.Services;
+using Chocolate.Settings;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -15,6 +16,7 @@ namespace Chocolate.Girls
     {
         private readonly IAudioService _audioService;
         private readonly GirlBehaviour _girlBehaviour;
+        private readonly GameSettings _gameSettings;
         private readonly StateMachine<Girl> _stateMachine;
 
         /// <summary>
@@ -22,9 +24,10 @@ namespace Chocolate.Girls
         /// </summary>
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        public Girl(GameObject girlPrefab, IAudioService audioService)
+        public Girl(GameObject girlPrefab, IAudioService audioService, GameSettings gameSettings)
         {
             _audioService = audioService;
+            _gameSettings = gameSettings;
 
             var girlObj = Object.Instantiate(girlPrefab);
             _girlBehaviour = girlObj.GetComponent<GirlBehaviour>();
@@ -87,7 +90,8 @@ namespace Chocolate.Girls
                 {
                     Owner._stateMachine.ChangeState((int) GirlState.Walk);
                     // 歩行開始と同時に表示する
-                    var isBonus = Random.Range(0, 100) < 15; // 一定確率でボーナスキャラにする
+                    var bonusMultiply = Owner._gameSettings.IsExpBoostOption ? 5 : 1; // EXPボーナスの場合は5倍
+                    var isBonus = Random.Range(0, 100) < 15 * bonusMultiply; // 一定確率でボーナスキャラにする
                     Owner._girlBehaviour.ShowGirl(Owner._roadPass, isBonus);
                     return;
                 }

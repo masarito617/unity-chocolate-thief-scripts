@@ -24,6 +24,11 @@ namespace Chocolate.Settings
         [NonSerialized] public bool IsDrawEffect;
 
         /// <summary>
+        /// EXPブーストオプション
+        /// </summary>
+        [NonSerialized] public bool IsExpBoostOption;
+
+        /// <summary>
         /// 最後に広告再生してからのプレイ回数
         /// </summary>
         [NonSerialized] public int LastAdmobPlayCount;
@@ -68,6 +73,7 @@ namespace Chocolate.Settings
             // ランタイムでの書き込み用にコピー
             IsTransitionTuneUp = initIsTransitionTuneUp;
             IsDrawEffect = initIsDrawEffect;
+            IsExpBoostOption = false; // 最初はfalse
             LastAdmobPlayCount = 100; // 最初は適当に大きな値を入れておく
             ApproachActionInfo = initApproachActionInfo.Clone();
             PleaseActionInfo = initPleaseActionInfo.Clone();

@@ -26,7 +26,7 @@ namespace Chocolate.Services
         /// <summary>
         /// BGM再生
         /// </summary>
-        public void PlayBGM(GameAudioType gameAudioType);
+        public void PlayBGM(GameAudioType gameAudioType, float pitch = 1.0f);
 
         /// <summary>
         /// BGM停止

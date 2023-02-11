@@ -139,7 +139,7 @@ namespace Chocolate.Players
                     break;
             }
             var ratio = (float) parameter / MaxParameterValue;
-            ratio = EaseOutQuart(ratio);
+            ratio = EaseOutStatus(ratio);
             // 最終的な確率の計算
             // パラメータが最大でない場合は、ステータスも-1しておく
             var successPercent = minPercent + Mathf.CeilToInt((maxPercent - minPercent) * ratio);
@@ -157,18 +157,18 @@ namespace Chocolate.Players
         {
             var parameter = (_playerStatus.SpeedParameter + _addPlayerStatus.SpeedParameter);
             var ratio = (float) parameter / MaxParameterValue;
-            ratio = EaseOutQuart(ratio);
-            var successPercent = minValue + Mathf.FloorToInt((maxValue - minValue) * ratio);
-            if (Mathf.FloorToInt(successPercent) == Mathf.FloorToInt(maxValue) && parameter < MaxParameterValue)
+            ratio = EaseOutStatus(ratio);
+            var successPercent = minValue + (maxValue - minValue) * ratio;
+            if (Mathf.RoundToInt(successPercent*10) == Mathf.RoundToInt(maxValue*10) && parameter < MaxParameterValue)
             {
-                successPercent -= 0.5f;
+                successPercent -= 0.1f;
             }
             return successPercent;
         }
 
         // 成長曲線を意識して初めは成長が早い
-        private float EaseOutQuart(float x) {
-            return 1 - Mathf.Pow(1 - x, 4);
+        private float EaseOutStatus(float x) {
+            return Mathf.Sqrt(1 - Mathf.Pow(1 - x, 2)); // EaseOutCirc
         }
     }
 }

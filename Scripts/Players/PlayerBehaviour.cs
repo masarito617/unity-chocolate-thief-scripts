@@ -145,6 +145,23 @@ namespace Chocolate.Players
             _rigidbody.velocity = Vector3.zero;
         }
 
+        // プレイヤーが領域からはみ出さないよう調整
+        public void ForceAdjustPlayerPosition()
+        {
+            // マジックナンバーだけど許して...
+            var maxPosX = 7.2f;
+            var minPosX = -maxPosX;
+            var maxPosZ = 4.7f;
+            var minPosZ = -maxPosZ;
+
+            var position = transform.localPosition;
+            if (position.x >= maxPosX) position.x = maxPosX;
+            if (position.x <= minPosX) position.x = minPosX;
+            if (position.z >= maxPosZ) position.z = maxPosZ;
+            if (position.z <= minPosZ) position.z = minPosZ;
+            transform.localPosition = position;
+        }
+
         public void SetActionTrigger(PlayerActionType actionType)
         {
             playerAnimation.SetActionTrigger(actionType);

@@ -90,7 +90,7 @@ namespace Chocolate.Services.Impl
         /// <summary>
         /// BGM再生
         /// </summary>
-        public void PlayBGM(GameAudioType audioType)
+        public void PlayBGM(GameAudioType audioType, float pitch = 1.0f)
         {
             // 再生中なら止める
             if (_bgmAudioSource.isPlaying)
@@ -101,6 +101,7 @@ namespace Chocolate.Services.Impl
             _bgmAudioSource.clip = LoadAudioClip(audioType);
             _bgmAudioSource.volume = _bgmVolume * _audioInfos[audioType].Volume;
             _bgmAudioSource.loop = true;
+            _bgmAudioSource.pitch = pitch;
             _bgmAudioSource.Play();
 
             // VolumeOff指定されている場合
