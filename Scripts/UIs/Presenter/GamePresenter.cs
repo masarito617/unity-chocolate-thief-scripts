@@ -23,17 +23,19 @@ namespace Chocolate.UIs.Presenter
         private ScoreManager _scoreManager;
         private GameSettings _gameSettings;
         private IAudioService _audioService;
+        private ISocialService _socialService;
         private PlayerPrefsRepository _playerPrefsRepository;
         private ISubscriber<DoActionData> _receiveActionData;
         private CancellationTokenSource _cancellationTokenSource;
 
         [Inject]
-        public void Construct(GameManager gameManager, ScoreManager scoreManager, GameSettings gameSettings, IAudioService audioService, PlayerPrefsRepository playerPrefsRepository, ISubscriber<DoActionData> receiveActionData)
+        public void Construct(GameManager gameManager, ScoreManager scoreManager, GameSettings gameSettings, IAudioService audioService, ISocialService socialService, PlayerPrefsRepository playerPrefsRepository, ISubscriber<DoActionData> receiveActionData)
         {
             _gameManager = gameManager;
             _scoreManager = scoreManager;
             _gameSettings = gameSettings;
             _audioService = audioService;
+            _socialService = socialService;
             _playerPrefsRepository = playerPrefsRepository;
             _receiveActionData = receiveActionData;
 
@@ -96,6 +98,11 @@ namespace Chocolate.UIs.Presenter
                                 {
                                     _audioService.PlayOneShot(GameAudioType.SeDecide);
                                     _gameManager.OnNextScene();
+                                },
+                                () =>
+                                {
+                                    var tweetText = $"チョコを{score}個集めました！\n#怪盗チョコレート\n◆iOS\nhttps://apple.co/3lsao7e\n◆Android\nhttps://play.google.com/store/apps/details?id=com.molegoro.chocolate";
+                                    _socialService.TweetWithScreenShotAsync(tweetText, null);
                                 },
                                 _audioService.PlayOneShot, isBestScore);
                             break;

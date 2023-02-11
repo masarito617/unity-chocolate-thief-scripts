@@ -25,18 +25,20 @@ namespace Chocolate.UIs.View
         /// <summary>
         /// 結果表示
         /// </summary>
-        public void ShowResult(int chocoScore, int exp, UnityAction displayAction, UnityAction okButtonAction, UnityAction<GameAudioType> onPlayOneShot, bool isBestScore)
+        public void ShowResult(int chocoScore, int exp, UnityAction displayAction, UnityAction okButtonAction, UnityAction tweetButtonAction, UnityAction<GameAudioType> onPlayOneShot, bool isBestScore)
         {
-            ShowResultAsync(chocoScore, exp, displayAction, okButtonAction, onPlayOneShot, isBestScore, _cancellationTokenSource.Token);
+            ShowResultAsync(chocoScore, exp, displayAction, okButtonAction, tweetButtonAction, onPlayOneShot, isBestScore, _cancellationTokenSource.Token);
         }
-        private async void ShowResultAsync(int chocoScore, int exp, UnityAction displayAction, UnityAction okButtonAction, UnityAction<GameAudioType> onPlayOneShot, bool isBestScore, CancellationToken token)
+        private async void ShowResultAsync(int chocoScore, int exp, UnityAction displayAction, UnityAction okButtonAction, UnityAction tweetButtonAction, UnityAction<GameAudioType> onPlayOneShot, bool isBestScore, CancellationToken token)
         {
             resultArea.transform.localScale = Vector3.zero;
             resultBestScore.SetActive(false);
             resultChocoArea.SetActive(false);
             resultExpArea.SetActive(false);
             resultOkButton.gameObject.SetActive(false);
+            tweetButton.gameObject.SetActive(false);
             SetListenerResultOkButton(okButtonAction);
+            SetListenerTweetButton(tweetButtonAction);
 
             // 終了メッセージの表示
             SetActiveEndMessageText(true);
@@ -78,8 +80,9 @@ namespace Chocolate.UIs.View
                         .SetEase(Ease.OutQuad)
                         .SetLoops(-1, LoopType.Yoyo);
                 }
-                // OKボタン
+                // OKボタン、ツイートボタン
                 resultOkButton.gameObject.SetActive(true);
+                tweetButton.gameObject.SetActive(true);
             });
             resultArea.SetActive(true);
         }
@@ -128,6 +131,21 @@ namespace Chocolate.UIs.View
         {
             resultOkButton.onClick.RemoveAllListeners();
             resultOkButton.onClick.AddListener(action);
+        }
+
+        /// <summary>
+        /// ツイートボタン
+        /// </summary>
+        [SerializeField] private Image tweetImage;
+        [SerializeField] private Button tweetButton;
+        public void SetActiveTweetButton(bool isActive)
+        {
+            tweetButton.gameObject.SetActive(isActive);
+        }
+        public void SetListenerTweetButton(UnityAction action)
+        {
+            tweetButton.onClick.RemoveAllListeners();
+            tweetButton.onClick.AddListener(action);
         }
     }
 }

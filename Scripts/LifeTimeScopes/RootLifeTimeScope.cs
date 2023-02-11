@@ -41,6 +41,7 @@ namespace Chocolate.LifeTimeScopes
             builder.Register<IStoreReviewService, StoreReviewService>(Lifetime.Singleton);
             builder.Register<ITransitionService, TransitionService>(Lifetime.Singleton);
             builder.Register<IPlayerPrefsService, PlayerPrefsService>(Lifetime.Singleton);
+            builder.Register<ISocialService, SocialService>(Lifetime.Singleton);
 
             // Instances
             builder.RegisterInstance(gameSettings);
